@@ -1,0 +1,17 @@
+job_id,job_title,skills
+1,Frontend Developer,"html css javascript react angular vue typescript node.js git rest api responsive design"
+2,Backend Developer,"python java node.js express django flask fastapi spring rest api graphql microservices sql mongodb postgresql aws docker kubernetes git"
+3,Full Stack Developer,"html css javascript react node.js express python django flask sql mongodb postgresql rest api git aws docker agile"
+4,Data Analyst,"python sql mysql postgresql pandas numpy matplotlib seaborn data analysis data visualization tableau power bi excel jupyter statistics"
+5,Machine Learning Engineer,"python machine learning deep learning neural networks tensorflow pytorch scikit-learn pandas numpy data analysis nlp computer vision opencv jupyter aws gcp"
+6,DevOps Engineer,"aws azure gcp docker kubernetes jenkins ci/cd terraform ansible linux bash shell scripting git python monitoring"
+7,Mobile Developer,"android ios react native flutter javascript typescript swift kotlin java rest api git agile"
+8,Software Engineer,"python java javascript c++ git agile scrum problem solving teamwork communication rest api sql"
+9,Data Scientist,"python machine learning deep learning pandas numpy matplotlib seaborn data analysis statistics nlp computer vision jupyter sql tableau"
+10,Cloud Architect,"aws azure gcp docker kubernetes terraform ansible linux networking security ci/cd python bash"
+11,UI/UX Designer,"html css javascript react figma adobe xd user experience user interface prototyping design thinking creativity"
+12,Database Administrator,"sql mysql postgresql oracle mongodb redis data modeling database design backup recovery performance tuning linux"
+13,Cybersecurity Analyst,"linux networking security penetration testing firewall vpn encryption incident response risk assessment python bash"
+14,Product Manager,"agile scrum project management communication leadership analytical thinking problem solving data analysis presentation skills"
+15,QA Engineer,"testing automation testing selenium python java javascript git agile problem solving attention to detail"
+
