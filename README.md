@@ -254,25 +254,51 @@ Once the backend is running, visit:
 
 ## 🚀 Deployment
 
-### Frontend (Vercel)
+### 🎯 Render Deployment (Recommended - Optimized)
+
+This project is specifically optimized for Render with ML library fixes:
+
+1. **Create Render Web Service**
+   - Go to https://dashboard.render.com
+   - Click "New" → "Web Service"
+   - Connect your GitHub repository
+
+2. **Configure Service Settings**:
+   ```
+   Name: ai-career-intelligence-platform
+   Environment: Python 3
+   Build Command: ./build.sh
+   Start Command: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+   ```
+
+3. **Set Environment Variables**
+   - See `backend/ENV_CONFIG_TEMPLATE.md` for required variables
+   - Add your Supabase URL, keys, and JWT secret
+
+4. **Deploy**
+   - Render automatically handles ML library installation
+   - No compilation errors with pre-built wheels
+
+**📖 Detailed Guide**: See `RENDER_DEPLOYMENT.md`
+
+### Alternative Deployments
+
+#### Frontend (Vercel/Netlify)
 1. Push code to GitHub
-2. Connect repository to Vercel
+2. Connect repository to Vercel/Netlify
 3. Set build command: `npm run build`
 4. Set output directory: `dist`
 5. Deploy
 
-### Backend (Render)
-1. Create new Web Service on Render
-2. Connect GitHub repository
-3. Set build command: `pip install -r requirements.txt`
-4. Set start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Deploy
+#### Backend (Railway/Heroku)
+- Use standard Python deployment
+- May require additional ML library configuration
 
 ### Database (Supabase)
 1. Create Supabase project
-2. Update `DATABASE_URL` in backend config
-3. Migrate user storage to PostgreSQL
-4. Update job dataset to database table
+2. Run SQL scripts from `database_setup.sql`
+3. Get API keys from Supabase dashboard
+4. Add keys to Render environment variables
 
 ## 🎓 Project Highlights for Viva
 

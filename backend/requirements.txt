@@ -13,13 +13,21 @@ passlib[bcrypt]==1.7.4
 PyPDF2==3.0.1
 
 # Machine Learning & NLP
-# Note: On Windows, if scikit-learn installation fails, use: pip install scikit-learn --only-binary :all:
-numpy>=1.24.0,<2.0.0
-pandas>=2.0.0,<3.0.0
+# Using specific versions with pre-built wheels for Render compatibility
+numpy==1.26.4
+pandas==2.1.4
 scikit-learn==1.3.2
+
+# Additional ML dependencies (ensure compatibility)
+scipy==1.11.4
+joblib==1.3.2
+threadpoolctl==3.2.0
 
 # Database
 supabase==2.3.0
 
 # CORS is handled by FastAPI's built-in CORSMiddleware
+
+# Email validation
+email-validator==2.1.0
 
