@@ -14,7 +14,7 @@ This guide will help you deploy your AI Career Intelligence Platform to Render s
 
 Your repository has been optimized for Render deployment with:
 - ✅ Updated `requirements.txt` with compatible versions
-- ✅ `runtime.txt` specifying Python 3.11.8
+- ✅ `runtime.txt` specifying Python 3.12.7 (ML library compatible)
 - ✅ `build.sh` script for proper ML library installation
 - ✅ Environment configuration template
 
@@ -86,6 +86,26 @@ JOBS_DATASET_PATH=../dataset/jobs.csv
    - Point it to your Render backend URL
 
 ## Troubleshooting
+
+### Python Version Issues
+
+**Issue: Render using Python 3.13.x instead of specified version**
+```
+Symptoms: Build fails with "Cython compilation errors" or "no module named 'int_t'"
+Solution:
+1. Ensure runtime.txt contains: python-3.12.7
+2. The build.sh script is optimized for Python 3.12.7
+3. If issues persist, check Render's Python version support
+```
+
+**Issue: ML library installation fails**
+```
+Symptoms: "Could not find a version that satisfies the requirement"
+Solution:
+1. build.sh forces binary installation (--only-binary=all)
+2. All ML libraries are pinned to compatible versions
+3. Check build logs for specific error messages
+```
 
 ### Build Failures
 
