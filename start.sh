@@ -3,8 +3,7 @@ set -e
 
 cd backend
 
-python3 -m ensurepip --upgrade
-python3 -m pip install --upgrade pip
-python3 -m pip install -r requirements.txt
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 
-python3 -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
