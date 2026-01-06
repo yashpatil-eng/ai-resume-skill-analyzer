@@ -70,11 +70,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         raise credentials_exception
 
     # Get user from database
-    user = await DatabaseService.get_user_by_email(email)
+    user = DatabaseService.get_user_by_email(email)
     if not user:
+        print(f"DEBUG: User not found for email: {email}")
         raise credentials_exception
 
     return user
+
+
+@router.post("/register-simple")
+async def register_simple(email: str, password: str, full_name: str):
+    """Simple test endpoint"""
+    print(f"SIMPLE REGISTER: {email}, {full_name}")
+    return {"message": f"Received: {email}, {full_name}", "status": "success"}
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
@@ -85,53 +93,69 @@ async def register(user_data: UserRegister):
     Returns:
         JWT access token and user information
     """
-    # Check if user already exists
-    existing_user = await DatabaseService.get_user_by_email(user_data.email)
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+    print("=== REGISTRATION ENDPOINT CALLED ===")
+    print(f"Raw user_data: {user_data}")
+    print(f"Email: {user_data.email}, Password length: {len(user_data.password)}, Full name: {user_data.full_name}")
+
+    try:
+        print(f"=== REGISTRATION ATTEMPT ===")
+        print(f"Email: {user_data.email}")
+
+        # Check if user already exists
+        existing_user = DatabaseService.get_user_by_email(user_data.email)
+        print(f"Existing user check: {existing_user is not None}")
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+
+        # Create new user
+        password_hash = hash_password(user_data.password)
+        print("Creating user in database...")
+        user = DatabaseService.create_user(
+            user_data.email,
+            password_hash,
+            user_data.full_name
         )
 
-    # Create new user
-    password_hash = hash_password(user_data.password)
-    user = await DatabaseService.create_user(
-        user_data.email,
-        password_hash,
-        user_data.full_name
-    )
+        print(f"DatabaseService.create_user returned: {user}")
+        if not user:
+            print("User creation failed - no user returned")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create user"
+            )
 
-    if not user:
+        print(f"User created successfully: {user}")
+
+        # Create access token
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user_data.email, "user_id": str(user['user_id'])},
+            expires_delta=access_token_expires
+        )
+
+        print("Access token created successfully")
+        print("Registration completed successfully")
+
+        return TokenResponse(
+            access_token=access_token,
+            token_type="bearer",
+            user_id=str(user['user_id']),
+            email=user_data.email
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Unexpected error in registration: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create user"
+            detail="Internal server error"
         )
-
-    # Create access token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user_data.email, "user_id": str(user['user_id'])},
-        expires_delta=access_token_expires
-    )
-
-    # Store session in database
-    from app.services.database import DatabaseService
-    import uuid
-    from datetime import datetime, timedelta
-
-    session_id = str(uuid.uuid4())
-    expires_at = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-
-    # Note: We're not actually storing sessions in database yet
-    # This is just for future implementation
-    print(f"Session created for user {user_data.email}: {session_id}")
-
-    return TokenResponse(
-        access_token=access_token,
-        token_type="bearer",
-        user_id=str(user['user_id']),
-        email=user_data.email
-    )
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -142,7 +166,7 @@ async def login(user_credentials: UserLogin):
     email = user_credentials.email
 
     # Check if user exists
-    user = await DatabaseService.get_user_by_email(email)
+    user = DatabaseService.get_user_by_email(email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -165,17 +189,26 @@ async def login(user_credentials: UserLogin):
         expires_delta=access_token_expires
     )
 
-    # Store session in database
-    from app.services.database import DatabaseService
-    import uuid
-    from datetime import datetime, timedelta
+    # Create user session in database
+    try:
+        import hashlib
+        from datetime import datetime, timezone
 
-    session_id = str(uuid.uuid4())
-    expires_at = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        # Create a hash of the token for session tracking
+        token_hash = hashlib.sha256(access_token.encode()).hexdigest()
+        expires_at = datetime.now(timezone.utc) + access_token_expires
 
-    # Note: We're not actually storing sessions in database yet
-    # This is just for future implementation
-    print(f"Login session created for user {email}: {session_id}")
+        DatabaseService.create_session(
+            user_id=str(user["user_id"]),
+            token_hash=token_hash,
+            expires_at=expires_at
+        )
+        # Note: We don't check the return value here to avoid failing login if session creation fails
+
+    except Exception as e:
+        # Log the error but don't fail the login
+        print(f"Warning: Session creation failed: {e}")
+        pass
 
     return TokenResponse(
         access_token=access_token,

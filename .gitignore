@@ -22,7 +22,13 @@ wheels/
 venv/
 env/
 ENV/
-.venv
+.venv/
+venv*/
+env*/
+ENV*/
+backend/venv/
+backend/env/
+backend/ENV/
 
 # Node
 node_modules/

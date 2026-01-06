@@ -29,19 +29,27 @@ async def upload_resume(
 ):
     """
     Upload and process resume PDF
-    
+
     Extracts text and skills from uploaded PDF resume
     """
+    logger.info("DEBUG: upload_resume function called")
+    logger.info(f"DEBUG: File: {file.filename}")
+    logger.info(f"DEBUG: Current user: {current_user}")
+
+    # Read file content
+    file_content = await file.read()
+    logger.info(f"DEBUG: File size: {len(file_content)} bytes")
+
     # Validate file type
     if not file.filename.endswith(".pdf"):
+        print("DEBUG: File type validation failed")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only PDF files are allowed"
         )
     
     try:
-        # Read file content
-        file_content = await file.read()
+        # file_content already read above
         
         # Validate file size
         if len(file_content) > settings.MAX_UPLOAD_SIZE:
@@ -52,10 +60,7 @@ async def upload_resume(
         
         # Validate PDF
         if not resume_parser.validate_pdf(file_content):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid PDF file"
-            )
+            raise ValueError("Invalid PDF file")
         
         # Extract text from PDF
         extracted_text = resume_parser.extract_text_from_pdf(file_content)
@@ -67,12 +72,17 @@ async def upload_resume(
         resume_id = str(uuid.uuid4())
         
         # Debug: Log current user info
-        logger.info(f"Current user object: {current_user}")
-        logger.info(f"User ID: {current_user.get('user_id', 'NOT FOUND')}")
-        logger.info(f"User email: {current_user.get('email', 'NOT FOUND')}")
+        print(f"DEBUG: Current user object: {current_user}")
+        print(f"DEBUG: Current user type: {type(current_user)}")
+        print(f"DEBUG: User ID: {current_user.get('user_id', 'NOT FOUND')}")
+        print(f"DEBUG: User email: {current_user.get('email', 'NOT FOUND')}")
+
+        # Ensure user_id exists
+        if 'user_id' not in current_user:
+            raise ValueError(f"User object missing user_id: {current_user}")
 
         # Save resume to database
-        save_success = await DatabaseService.save_resume(
+        save_success = DatabaseService.save_resume(
             current_user['user_id'],
             file.filename,
             extracted_text,
@@ -97,15 +107,22 @@ async def upload_resume(
         )
         
     except ValueError as e:
+        print(f"DEBUG: ValueError caught: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+    except HTTPException:
+        print("DEBUG: HTTPException re-raised")
+        raise  # Re-raise HTTPException to be handled by FastAPI
     except Exception as e:
-        logger.error(f"Error processing resume: {str(e)}")
+        error_msg = str(e) if str(e) else f"Unknown error: {type(e).__name__}"
+        print(f"DEBUG: General exception: {error_msg}, type: {type(e)}")
+        logger.error(f"Error processing resume: {error_msg}")
+        logger.error(f"Full exception: {repr(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing resume: {str(e)}"
+            detail=f"Error processing resume: {error_msg}"
         )
 
 

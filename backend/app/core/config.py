@@ -33,12 +33,22 @@ class Settings(BaseSettings):
     # ML/NLP Settings
     DATASET_PATH: str = "dataset/jobs.csv"
     MIN_SIMILARITY_THRESHOLD: float = 0.1
-    
+
+    # CORS Settings
+    CORS_ORIGINS_STR: Optional[str] = None
+
     model_config = {
         "env_file": ".env",
         "case_sensitive": True,
         "extra": "ignore"  # Ignore extra fields from .env file
     }
+
+    @property
+    def CORS_ORIGINS(self):
+        """Parse CORS origins from string"""
+        if self.CORS_ORIGINS_STR:
+            return [origin.strip() for origin in self.CORS_ORIGINS_STR.split(",")]
+        return []
 
     # Supabase client property
     @property

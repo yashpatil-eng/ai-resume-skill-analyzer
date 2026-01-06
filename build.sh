@@ -1,41 +1,40 @@
 #!/usr/bin/env bash
 
-# Build script for Render deployment - Python 3.12.7 optimized
-# Forces binary installation and handles Python version conflicts
+# Build script for Railway deployment - optimized for Railway's build environment
+# This script handles both backend and frontend builds
 
 set -e
 
-echo "🚀 Starting AI Career Intelligence Platform build on Render..."
-echo "🐍 Target Python version: 3.12.7"
+echo "🚀 Starting AI Career Intelligence Platform build on Railway..."
 
-# Check Python version
-echo "🔍 Checking Python version..."
-python_version=$(python --version 2>&1 | awk '{print $2}')
-echo "📊 Current Python version: $python_version"
-
-# Force pip to use compatible versions
+# Set environment variables for better performance
 export PIP_NO_CACHE_DIR=1
 export PIP_DISABLE_PIP_VERSION_CHECK=1
+export PYTHONUNBUFFERED=1
 
-# Update pip and install build tools
-echo "📦 Updating pip and build tools..."
+# Change to backend directory
+cd backend
+
+echo "🐍 Setting up Python environment..."
+python --version
+
+# Upgrade pip and install build tools
+echo "📦 Upgrading pip and build tools..."
 pip install --upgrade pip setuptools wheel
 
-# Force binary installation of ML libraries (critical for Render Python 3.12.7)
-echo "🤖 Installing ML libraries from pre-built wheels..."
+# Install ML libraries first (most likely to fail)
+echo "🤖 Installing ML libraries..."
 pip install --only-binary=all --force-reinstall \
     numpy==1.26.4 \
-    pandas==2.1.4 \
-    scipy==1.11.4 \
-    scikit-learn==1.3.2 \
-    joblib==1.3.2 \
-    threadpoolctl==3.2.0
+    pandas==2.2.3 \
+    scipy==1.14.1 \
+    scikit-learn==1.5.2 \
+    joblib==1.4.2 \
+    threadpoolctl==3.5.0
 
-# Verify ML libraries installed correctly
-echo "🔍 Verifying ML library installation..."
+# Verify ML libraries
+echo "🔍 Verifying ML libraries..."
 python -c "
-import sys
-print(f'Python version: {sys.version}')
 import numpy as np
 import pandas as pd
 import sklearn
@@ -43,21 +42,17 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 print(f'✅ NumPy: {np.__version__}')
 print(f'✅ Pandas: {pd.__version__}')
 print(f'✅ Scikit-learn: {sklearn.__version__}')
-print('✅ ML libraries installed successfully')
 "
 
 # Install remaining dependencies
 echo "📚 Installing remaining dependencies..."
 pip install -r requirements.txt
 
-# Verify all critical imports work
-echo "🧪 Testing all critical imports..."
+# Verify all critical imports
+echo "🧪 Testing critical imports..."
 python -c "
 # Core FastAPI
-import fastapi
-import uvicorn
-import pydantic
-import pydantic_settings
+import fastapi, uvicorn, pydantic, pydantic_settings
 
 # Authentication
 from python_jose import jwt
@@ -79,8 +74,10 @@ import supabase
 import email_validator
 
 print('✅ All critical imports successful!')
-print('🎉 Build verification complete!')
 "
 
-echo "🎉 Build completed successfully!"
-echo "🚀 Your AI Career Intelligence Platform is ready for deployment on Python 3.12.7!"
+# Go back to root directory
+cd ..
+
+echo "🎉 Backend build completed successfully!"
+echo "🚀 Your AI Career Intelligence Platform backend is ready for Railway deployment!"

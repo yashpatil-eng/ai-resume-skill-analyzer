@@ -44,13 +44,9 @@ api.interceptors.response.use(
     console.error('API Error:', error.response?.status, error.response?.statusText);
     console.error('Error details:', error.response?.data);
 
-    if (error.response?.status === 401) {
-      console.log('401 Unauthorized - clearing session and redirecting to login');
-      // Unauthorized - clear token and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
+    // Don't auto-redirect on 401 errors - let components handle auth failures
+    // This prevents conflicts with React Router navigation
+    console.log('API Error handled by component - not auto-redirecting');
     return Promise.reject(error);
   }
 );

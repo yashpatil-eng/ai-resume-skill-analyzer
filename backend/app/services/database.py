@@ -13,7 +13,7 @@ class DatabaseService:
     """Database service for user management and data persistence"""
 
     @staticmethod
-    async def create_user(email: str, password_hash: str, full_name: str) -> Optional[Dict[str, Any]]:
+    def create_user(email: str, password_hash: str, full_name: str) -> Optional[Dict[str, Any]]:
         """Create a new user in database"""
         if not supabase:
             logger.error("Supabase client not available")
@@ -38,7 +38,7 @@ class DatabaseService:
             return None
 
     @staticmethod
-    async def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
         """Get user by email"""
         if not supabase:
             logger.error("Supabase client not available")
@@ -72,7 +72,7 @@ class DatabaseService:
             return None
 
     @staticmethod
-    async def save_resume(user_id: str, filename: str, extracted_text: str, extracted_skills: List[str]) -> bool:
+    def save_resume(user_id: str, filename: str, extracted_text: str, extracted_skills: List[str]) -> bool:
         """Save resume data to database"""
         logger.info(f"Attempting to save resume for user_id: {user_id}, filename: {filename}")
 
@@ -121,7 +121,7 @@ class DatabaseService:
             return []
 
     @staticmethod
-    async def save_job_recommendation(user_id: str, user_skills: List[str], recommendations: List[Dict[str, Any]]) -> bool:
+    def save_job_recommendation(user_id: str, user_skills: List[str], recommendations: List[Dict[str, Any]]) -> bool:
         """Save job recommendations for caching"""
         try:
             result = supabase.table('job_recommendations').insert({
@@ -170,6 +170,34 @@ class DatabaseService:
         except Exception as e:
             logger.error(f"Error updating user profile {user_id}: {str(e)}")
             return False
+
+    @staticmethod
+    def create_session(user_id: str, token_hash: str, expires_at) -> Optional[str]:
+        """Create a new user session"""
+        if not supabase:
+            logger.error("Supabase client not available")
+            return None
+
+        try:
+            expires_at_str = expires_at.isoformat() if hasattr(expires_at, 'isoformat') else str(expires_at)
+
+            result = supabase.table('user_sessions').insert({
+                'user_id': user_id,
+                'token_hash': token_hash,
+                'expires_at': expires_at_str
+            }).execute()
+
+            if result.data and len(result.data) > 0:
+                session_id = result.data[0]['session_id']
+                logger.info(f"Session created for user {user_id}: {session_id}")
+                return session_id
+            else:
+                logger.error(f"Failed to create session for user {user_id}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Error creating session for user {user_id}: {str(e)}")
+            return None
 
     @staticmethod
     async def delete_user_data(user_id: str) -> bool:

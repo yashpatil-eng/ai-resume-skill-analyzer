@@ -14,49 +14,70 @@ const Dashboard = () => {
 
   useEffect(() => {
     console.log('Dashboard: Checking authentication...');
+    console.log('Dashboard: Current URL:', window.location.pathname);
 
-    // Check if user is authenticated
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    // Small delay to ensure login data is stored
+    const checkAuth = () => {
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
 
-    console.log('Dashboard: Token exists:', !!token);
-    console.log('Dashboard: User data exists:', !!userData);
+      console.log('Dashboard: Token exists:', !!token);
+      console.log('Dashboard: User data exists:', !!userData);
+      console.log('Dashboard: Token value:', token ? token.substring(0, 20) + '...' : 'null');
+      console.log('Dashboard: User data value:', userData ? userData.substring(0, 50) + '...' : 'null');
 
-    if (!token || !userData) {
-      console.log('Dashboard: No token or user data, redirecting to login');
-      navigate('/login');
-      return;
-    }
+      if (!token || !userData) {
+        console.log('Dashboard: No token or user data, redirecting to login');
+        navigate('/login');
+        return;
+      }
 
-    // Get user info from localStorage
-    try {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
-      console.log('Dashboard: User loaded from localStorage:', parsedUser.email);
-    } catch (error) {
-      console.error('Dashboard: Error parsing user data:', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
-      return;
-    }
-
-    // Verify token with backend (optional - for security)
-    authAPI.getCurrentUser()
-      .then((data) => {
-        console.log('Dashboard: Token verified with backend:', data.email);
-        // Update user data if needed
-        if (data.full_name && !user.full_name) {
-          setUser(data);
-        }
-      })
-      .catch((error) => {
-        console.error('Dashboard: Token verification failed:', error);
-        // Token invalid, redirect to login
+      let parsedUser;
+      // Get user info from localStorage
+      try {
+        parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        console.log('Dashboard: User loaded from localStorage:', parsedUser.email);
+      } catch (error) {
+        console.error('Dashboard: Error parsing user data:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login');
-      });
+        return;
+      }
+
+      // Verify token with backend (optional - for security)
+      authAPI.getCurrentUser()
+        .then((data) => {
+          console.log('Dashboard: Token verified with backend:', data.email);
+          // Update user data if needed
+          if (data.full_name && parsedUser && !parsedUser.full_name) {
+            const updatedUser = { ...parsedUser, full_name: data.full_name };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+          }
+        })
+        .catch((error) => {
+          console.error('Dashboard: Token verification failed:', error);
+          console.error('Error details:', error.response?.data || error.message);
+          // Only redirect if it's a real auth failure, not a network issue
+          if (error.response?.status === 401) {
+            console.log('Dashboard: 401 error - token invalid, redirecting to login');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/login');
+          } else {
+            console.log('Dashboard: Non-auth error, staying on dashboard (might be network issue)');
+          }
+        });
+    };
+
+    // Check auth immediately, but also after a short delay in case of timing issues
+    checkAuth();
+    const timeoutId = setTimeout(checkAuth, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [navigate]);
 
   const handleResumeProcessed = (skills) => {

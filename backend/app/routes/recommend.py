@@ -70,7 +70,7 @@ async def recommend_jobs(
         
         # Save recommendations to database for caching
         from app.services.database import DatabaseService
-        save_success = await DatabaseService.save_job_recommendation(
+        save_success = DatabaseService.save_job_recommendation(
             current_user['user_id'],
             request.user_skills,
             recommendations_data  # Save the raw data

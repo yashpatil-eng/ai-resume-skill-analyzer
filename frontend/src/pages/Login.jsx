@@ -30,13 +30,21 @@ const Login = () => {
       }
 
       // Store token and user data
+      console.log('Login: Storing token and user data...');
+      console.log('Login: Response data:', response);
+
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('user', JSON.stringify({
         user_id: response.user_id,
         email: response.email,
       }));
 
+      console.log('Login: Data stored in localStorage');
+      console.log('Login: Token in localStorage:', localStorage.getItem('token') ? 'exists' : 'missing');
+      console.log('Login: User in localStorage:', localStorage.getItem('user') ? 'exists' : 'missing');
+
       // Redirect to dashboard
+      console.log('Login: Redirecting to dashboard...');
       navigate('/dashboard');
     } catch (err) {
       setError(

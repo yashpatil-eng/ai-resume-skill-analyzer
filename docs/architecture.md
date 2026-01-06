@@ -218,9 +218,3 @@ User clicks "Get Recommendations" → Frontend → POST /jobs/recommend
 4. **Learning Paths**: Recommend courses to fill skill gaps
 5. **Real-time Updates**: WebSocket for live recommendations
 6. **Multi-language Support**: Support for multiple languages
-
-
-
-
-
-
