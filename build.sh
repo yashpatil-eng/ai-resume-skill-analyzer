@@ -55,7 +55,7 @@ python -c "
 import fastapi, uvicorn, pydantic, pydantic_settings
 
 # Authentication
-from python_jose import jwt
+from jose import jwt
 import passlib.hash
 
 # PDF processing
