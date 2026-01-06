@@ -53,7 +53,10 @@ if environment == "production":
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=[
+        "https://ai-resume-skill-analyzer.vercel.app",
+        "https://ai-resume-skill-analyzer-ipgh97scw.vercel.app",  # optional preview
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
