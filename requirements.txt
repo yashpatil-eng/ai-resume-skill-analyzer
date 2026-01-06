@@ -1,0 +1,34 @@
+# FastAPI and server
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.17
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# Authentication
+python-jose[cryptography]==3.4.1
+passlib[bcrypt]==1.7.4
+
+# PDF Processing
+PyPDF2==3.0.1
+
+# Machine Learning & NLP
+# Using specific versions with pre-built wheels for Railway/Render compatibility
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+
+# Additional ML dependencies (ensure compatibility)
+scipy==1.14.1
+joblib==1.4.2
+threadpoolctl==3.5.0
+
+# Database
+supabase==2.10.0
+
+# Email validation
+email-validator==2.2.0
+
+# Additional dependencies for cloud deployment
+gunicorn==23.0.0
+
