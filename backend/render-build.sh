@@ -36,7 +36,7 @@ print('✅ ML libraries ready')
 
 # Install all dependencies
 echo "📦 Installing application dependencies..."
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 
 
 # Verify all imports
