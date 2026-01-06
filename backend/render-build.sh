@@ -42,7 +42,7 @@ pip install -r backend/requirements.txt
 # Verify all imports
 python -c "
 import fastapi, uvicorn, pydantic, supabase, PyPDF2
-from python_jose import jwt
+from jose import jwt
 print('✅ All dependencies verified')
 "
 
