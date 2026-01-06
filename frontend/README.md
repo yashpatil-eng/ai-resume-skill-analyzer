@@ -2,9 +2,9 @@
 
 ## Environment Variables for Vercel
 
-### Required Environment Variable
+### Required Environment Variable (Production Only)
 
-**VITE_API_BASE_URL** - Backend API base URL
+**VITE_API_BASE_URL** - Backend API base URL for production
 
 **Production Value:**
 ```
@@ -21,18 +21,15 @@ VITE_API_BASE_URL=https://ai-career-backend-88xp.onrender.com/api/v1
    - **Value:** `https://ai-career-backend-88xp.onrender.com/api/v1`
    - **Environment:** `Production` (and optionally `Preview`/`Development`)
 
-### Local Development
+### Development vs Production
 
-For local development, create a `.env.local` file:
-
-```bash
-# .env.local (for local development only)
-VITE_API_BASE_URL=http://localhost:8000/api/v1
-```
+- **Development:** Uses `http://localhost:8000/api/v1` automatically
+- **Production:** Requires `VITE_API_BASE_URL` environment variable
+- **No fallback URLs** in production - must set environment variable
 
 ### Important Notes
 
-- The frontend will throw an error if `VITE_API_BASE_URL` is not defined
-- No fallback URLs are used - the environment variable must be set
 - The active API URL is logged to the console on app startup
-- All API calls use this base URL exclusively
+- All API calls use the shared axios instance exclusively
+- No hardcoded localhost URLs in production
+- No manual fetch/axios calls bypass the API service
