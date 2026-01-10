@@ -55,10 +55,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://ai-resume-skill-analyzer.vercel.app",
-        "https://ai-resume-skill-analyzer-ipgh97scw.vercel.app",  # optional preview
+        "https://ai-resume-skill-analyzer-ipgh97scw.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:5173",
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
