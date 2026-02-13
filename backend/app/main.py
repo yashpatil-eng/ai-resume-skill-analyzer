@@ -51,19 +51,20 @@ if environment == "production":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # Add CORS middleware
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://ai-resume-skill-analyzer.vercel.app",
-        "https://ai-resume-skill-analyzer-ipgh97scw.vercel.app",
+        "https://ai-resume-skill-analyzer-ipgh97scw.vercel.app",  # optional preview
         "http://localhost:3000",
         "http://localhost:5173",
     ],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],   # allow all methods OR replace with explicit list
+    allow_headers=["*"],   # allow all headers
 )
-
 # Include routers
 print("=== STARTING ROUTER INCLUSION ===")
 print("Testing routers import...")
