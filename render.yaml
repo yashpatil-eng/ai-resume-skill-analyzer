@@ -1,0 +1,24 @@
+# Render deployment configuration
+# This file tells Render how to deploy your application
+
+services:
+  - type: web
+    name: ai-career-backend
+    runtime: python3
+    buildCommand: "bash render-build.sh"
+    startCommand: "gunicorn -w 4 -k uvicorn.workers.UvicornWorker backend.app.main:app --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ENVIRONMENT
+        value: production
+      # Add your environment variables here or set them in Render dashboard
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS_STR
+        sync: false
+
